@@ -1,191 +1,283 @@
 
-class Bd {
+class Despesa{
 
-constructor() {
-	let id = localStorage.getItem('id')// ele vai pegar o valor dentro da chave id no localStorage
-	if (id === null) {//se o valor a ser recebido for null quer dizer que não existe id la dentro do localStorage.
-		localStorage.setItem('id', 0)
-	}
-}
+constructor(ano, mes, dia, tipo, descricao, valor){
 
-getProximoId(){
-	let proximoId = localStorage.getItem('id')
-	return parseInt(proximoId) + 1
-}
-	gravar(captura) {
-		let id = this.getProximoId()//aqui pegamos o valor do return e passamos para a variavel id
-		//o this serve para acessarmos o metodos contido no bd que é uma class
-	localStorage.setItem(id, JSON.stringify(captura))
-	localStorage.setItem('id', id)// ou seja, na chave id também será dinamico, a cada item colocado
-	// será adicionado +1 na chave id.
-	
-    }
-recarregarDespesas(){
-	let id = localStorage.getItem('id') //acessei a chave id, e atribui o valor da chave a variavel ID, ou seja, atribui
-	//quantos itens tem na aplicação, pq os id vai aumentando de acordo com os itens inseridos..
-	let despesas = []
-	 for (var i = 1; i <= id; i++) {
-		let despesa = JSON.parse(localStorage.getItem(i))//passei para objeto literal e tirei da string,
-		//a cada item vai (1,2,3,4) vai ser adicionado a despesa.
+this.ano = ano
+this.mes = mes
+this.dia = dia
+this.tipo = tipo
+this.descricao = descricao
+this.valor = valor
+
+}//fechamento constructor
+
+validarDados(){
+	//neste momento estou percorrendo cada um dos elementos contidos dentro de despesa e colocando dentro de i
+	for(let i in this){
 		
-		if (despesa === null) {continue}//ou seja, se eu excluir algum item, ele vai repetir o laço.
-			//continue serve para ele repetir o laço novamente. ou seja, não entrará despesa em despesas.
-		despesa.id = i
-		console.log(despesa)
-		despesas.push(despesa)// passo o valor de despesa do laço de repetição para despesa.
-
-	 }
-return despesas
-
-}
-
-pesquisar(despesa){
-let despesas = despesa
-let despesasFiltradas = this.recarregarDespesas()//peguei as despesas inseridas no localStorage
-console.log(despesasFiltradas)
-//ano
-if (despesas.ano != '') {
- despesasFiltradas = despesasFiltradas.filter(d => d.ano == despesas.ano)//ja que o filter não atua sobre o objeto
- //em questão, temos que atribui a ele o valor atualizado.
-}
-
-//mes
-if (despesas.mes != '') {
- despesasFiltradas = despesasFiltradas.filter(d => d.mes == despesas.mes)//eu estou atribuindo a despesa filtrada, somente
- //as despesas que se enquadrarão na pesquisa.
- }
-
-//dia
-if (despesas.dia != '') {
- despesasFiltradas = despesasFiltradas.filter(d => d.dia == despesas.dia)
- }
-//tipo
-if (despesas.tipo != '') {
- despesasFiltradas = despesasFiltradas.filter(d => d.tipo == despesas.tipo)
- }
-// descrição
-if (despesas.descrição != '') {
- despesasFiltradas = despesasFiltradas.filter(d => d.descrição == despesas.descrição)
- }
-//valor
-if (despesas.valor != '') {
- despesasFiltradas = despesasFiltradas.filter(d => d.valor == despesas.valor)
- }
- return despesasFiltradas
-
-}
-
-remover(id){
-	localStorage.removeItem(id)
-
-}
-}
-let bd = new Bd()
-function cadastroDespesa(){
-let ano = document.getElementById('ano')
-let mes = document.getElementById('mes')
-let dia = document.getElementById('dia')
-let tipo = document.getElementById('tipo')
-let descricao = document.getElementById('descricao')
-let valor = document.getElementById('valor')
-let captura = {
-	ano: ano.value,
-	mes: mes.value,
-	dia: dia.value,
-	tipo: tipo.value,
-	descricao: descricao.value,
-	valor: valor.value,
-	validarDados() {
-		for (let i in this) {// vou absorver os indices de this
-			if (this[i] == undefined || this[i] == '' || this[i] == null) {
+			if(this[i] == undefined || this[i] == null || this[i] == ''){
 				return false
 			}
-		}
-		return true
-	}
+
+		//através do this[i] estou resgatando os valores dos atributos do objeto
+	}//fechamento for in
+return true
+
+}//fechamento validarDados
+
+}//fechamento class Despesa
+
+class Bd{
+
+	constructor(){
+		let id = localStorage.getItem('id')
+
+		if (id === null) {
+			localStorage.setItem('id', 0)
+		} 
 	}
 
-if (captura.validarDados()) {
-	bd.gravar(captura)
-	$('#registroModal').modal('show')
-	document.getElementById('titulo').innerHTML = 'Registro inserido'
-	document.getElementById('texto').innerHTML = 'Despesa foi cadastrado com sucesso.'
-	document.getElementById('corClass').className = 'modal-header text-success'
-	document.getElementById('botao').className = 'btn btn-success'
+	getProximoId(){
+		let proximoId = localStorage.getItem('id')
+		//get item vai resgatar o dado dentro do localstorage
 
-ano.value = 'ano'
-mes.value = 'mes'
-dia.value = ''
-tipo.value = ''
-descricao.value = ''
-valor.value = ''
-
-}else 
-	{
-	$('#registroModal').modal('show')
-	document.getElementById('titulo').innerHTML = 'Favor preencher todos os campos'
-	document.getElementById('texto').innerHTML = 'Há campos que ainda não foram preenchidos, favor preencher.'
-	document.getElementById('corClass').className = 'modal-header text-danger'
-	document.getElementById('botao').className = 'btn btn-danger'
-	}
-}
-//função que vai ser carregada no body de consulta.html, com a intenção de inserir os valores dentro de consulta.html
-function carregarListaDespesa(despesas = [], filtro = false){//aqui eu pus filtro == false para caso eu não filtre nada apareça
-	//a lista, recarrega as despesas, porem se for verdadeiro eu não recarrego as despesas. 
-	if (despesas.length == 0 && filtro == false) {
-	despesas = bd.recarregarDespesas()//criei despesas como array e atribui a ele o retorno do metodo recarregarDespesas
-}
-let valorTotal = 0
-let linhaTabela = document.getElementById('tabela')
-linhaTabela.innerHTML = ''
-despesas.forEach(function(des){
-// criando a linha tr da tabela.
-let linha = linhaTabela.insertRow()
-//criando a coluna da tabela td. vou criar 4 pois so tem 4 na tabela. 
-linha.insertCell().innerHTML = `${des.dia}/${des.mes}/${des.ano}`
-	switch(des.tipo){
-		case '1': des.tipo = 'Alimentação'
-			break
-		case '2': des.tipo = 'Educação'
-			break
-		case '3': des.tipo = 'Lazer'
-			break
-		case '4': des.tipo = 'Saúde'
-			break
-		case '5': des.tipo = 'Transporte'
-			break
 		
+		return parseInt(proximoId) + 1
 	}
-linha.insertCell().innerHTML = des.tipo
-linha.insertCell().innerHTML = des.descricao
-linha.insertCell().innerHTML = des.valor
-let btn = document.createElement("button")
-btn.className = 'btn btn-danger'
-btn.innerHTML = '<i class="fas fa-times"></i>'
-btn.id = `id_despesas_${des.id}`
-btn.onclick = function(){
-	let id = this.id.replace('id_despesas_', '')
 
-	bd.remover(id)
-	window.location.reload()
-}
-linha.insertCell().append(btn)
-valorTotal += parseFloat(des.valor)
-})
-let stringValor = `<hr> O valor total da sua despesa é: <input type="text" class="form-control" placeholder="${valorTotal.toFixed(2)}"  disabled="disabled">`
-document.getElementById('valorTotal').innerHTML = stringValor
-}
+	gravar(d){
 
-function pesquisarDespesas(){
+		let id = this.getProximoId()
+		
+		localStorage.setItem(id, JSON.stringify(d))
+		//aqui eu através do setItem, inserindo estes meus dados colhidos na função no localstorage no próprio browser
+		// e convertendo o objeto literal em stringJSON dentro do localstorage
+
+		localStorage.setItem('id', id)
+	}
+
+
+recuperarTodosRegistros(){
+
+//a cada interação do laço for eu vou inserir a despesa já convertida em objeto literal neste array
+let despesas = Array() 
+
+	let id = localStorage.getItem('id')
+	//aqui eu estou armazenando na variavel id os id's dos itens que estão em localStorage
+
+
+	//recuperar todas as despesas cadastradas em localStorage pois percorre todos os ids:
+	for (let i = 1; i <= id; i++) {
+		
+		//recuperando a despesa de cada id e convertendo em objetos literais (que antes eram strings json):
+		let despesa = JSON.parse(localStorage.getItem(i))
+
+
+		//esse if vai verificar se existe algum indice que tenha sido pulado ou removido
+		//caso tenha, o comando de continue vai fazer o comando de inserir no array ser ignorado
+		if (despesa === null) {
+			continue
+		}
+
+		despesa.id = i
+		despesas.push(despesa)
+		//estou inserindo a despesa do id atual no array despesas
+
+	}//fechamento do laço for
+
+	return despesas 
+
+}//fechamento recuperarTodosRegistros
+
+	pesquisar(despesa){
+
+			let despesasFiltradas = Array()
+
+			despesasFiltradas =	this.recuperarTodosRegistros()
+
+			console.log(despesa)
+			console.log(despesasFiltradas)
+
+			//ano
+			if (despesa.ano != '') {
+				console.log('filtro de ano')
+			despesasFiltradas = despesasFiltradas.filter(d => d.ano == despesa.ano)
+			}//fechamento if teste ano
+
+			//mes
+			if (despesa.mes != '') {
+				console.log('filtro de mes')
+			despesasFiltradas = despesasFiltradas.filter(d => d.mes == despesa.mes)
+			}//fechamento if 
+
+			//dia
+			if (despesa.dia != '') {
+				console.log('filtro de dia')
+			despesasFiltradas = despesasFiltradas.filter(d => d.dia == despesa.dia)
+			}//fechamento if 
+
+			//tipo
+			if (despesa.tipo != '') {
+				console.log('filtro de tipo')
+			despesasFiltradas = despesasFiltradas.filter(d => d.tipo == despesa.tipo)
+			}//fechamento if 
+
+			//descricao
+			if (despesa.descricao != '') {
+				console.log('filtro de descricao')
+			despesasFiltradas = despesasFiltradas.filter(d => d.descricao == despesa.descricao)
+			}//fechamento if descricao
+
+			//valor
+			if (despesa.valor != '') {
+				console.log('filtro de valor')
+			despesasFiltradas = despesasFiltradas.filter(d => d.valor == despesa.valor)
+			}//fechamento if valor
+
+			return despesasFiltradas
+
+		}//fechamento pesquisar
+
+		remover(id){
+			localStorage.removeItem(id)
+		}
+
+}//fechamento class bd
+
+let bd = new Bd
+
+function cadastrarDespesa() {
 	
-let despesa = {
-	ano: ano.value,
-	mes: mes.value,
-	dia: dia.value,
-	tipo: tipo.value,
-	descricao: descricao.value,
-	valor: valor.value,}
-despesas = bd.pesquisar(despesa)
-carregarListaDespesa(despesas, true)// passei como parametro o true para caso eu passe algum filtro existente ele apague os outros,
-//e me mostre o filtro que solicitei apenas.
+	let ano = document.getElementById('ano')
+	let mes = document.getElementById('mes')
+	let dia = document.getElementById('dia')
+	let tipo = document.getElementById('tipo')
+	let descricao = document.getElementById('descricao')
+	let valor = document.getElementById('valor')
+
+	let despesa = new Despesa(
+
+		ano.value, 
+		mes.value,
+		dia.value, 
+		tipo.value, 
+		descricao.value, 
+		valor.value
+		)
+
+	if (despesa.validarDados()) {
+	bd.gravar(despesa)
+	//verifica se todos os campos foram preenchidos para em seguida gravar os dados
+	//console.log('dados válidos')
+	$('#erroGravacao').modal('show')
+	document.getElementById('botao').className = 'btn btn-lg text-white btn-success'
+	document.getElementById('GravacaoMensagem').innerHTML = "Sua despesa foi salva corretamente"
+	document.getElementById('titulo').innerHTML = "Sucesso na gravação"
+	document.getElementById('botao').innerHTML = "Ok"
+	document.getElementById('titulo').className = 'modal-title text-success'
+
+	ano.value=""
+	mes.value=""
+	dia.value=""
+	tipo.value=""
+	descricao.value=""
+	valor.value=""
+
+}else{
+	//erro, não preencheu todos os campos
+	$('#erroGravacao').modal('show')
+	document.getElementById('botao').className = 'btn btn-lg text-white btn-danger'
+	document.getElementById('GravacaoMensagem').innerHTML = "Verifique se todos os campos foram preenchidos corretamente"
+	document.getElementById('titulo').innerHTML = "Erro na gravação"
+	document.getElementById('botao').innerHTML = "Voltar e corrigir"
+	document.getElementById('titulo').className = 'modal-title text-danger'
 }
+
+
+}//fechamento cadastrarDespesa
+
+
+//essa função é chamada a cada vez que a página de consulta é carregada
+function carregaListaDespesas( despesas = Array(), filtro = false) {
+
+	if (despesas.length == 0 && filtro == false) {
+	despesas = bd.recuperarTodosRegistros()
+	}
+
+	//selecionando o elemento tbody da tabela
+	let listaDespesas = document.getElementById('listaDespesas')
+	listaDespesas.innerHTML = ''
+
+	//percorrer todo o array despesas, listando cada despesa de forma dinamica
+	despesas.forEach(function(d){
+
+		console.log(d)
+
+		//criando a linha (tr) o momento que percorro cada item do array
+		let linha = listaDespesas.insertRow()
+
+		//criando as colunas (td)
+		linha.insertCell(0).innerHTML = `${d.dia}/${d.mes}/${d.ano}`
+		//linha.insertCell(1).innerHTML = d.tipo
+
+		//é necessário ajustar o tipo pois estava aparecendo como forma numérica:
+
+		switch(d.tipo){
+
+			case '1': d.tipo = 'Alimentação'
+				break
+			case '2': d.tipo = 'Educação'
+				break
+			case '3': d.tipo = 'Lazer'
+				break
+			case '4': d.tipo = 'Saúde'
+				break
+			case '5': d.tipo = 'Transporte'
+				break
+		}
+
+		linha.insertCell(1).innerHTML = d.tipo//foi feita uma sobreposição com os respectivos tipos 
+
+		linha.insertCell(2).innerHTML = d.descricao
+		linha.insertCell(3).innerHTML = d.valor
+
+		//criando o botão de exclusão
+
+		let btn = document.createElement("button")
+		btn.className = 'btn btn-danger'
+		btn.innerHTML = '<i class= "fas fa-times"></i>'
+		btn.id = `${d.id}`
+		btn.onclick = function(){
+			//remover a despesa
+			let id = this.id
+
+			bd.remover(id)
+
+			window.location.reload()
+		}
+
+		linha.insertCell(4).append(btn)//estou acessando linha e inserindo através do insercell 
+		//uma nova coluna, em seguida com o append, o elemento botao(btn) que acabou de ser criado.
+
+	})
+}//fechamento carregaListaDespesa
+
+
+function pesquisarDespesa(){
+
+	let ano = document.getElementById('ano').value
+	let mes = document.getElementById('mes').value
+	let dia = document.getElementById('dia').value
+	let tipo = document.getElementById('tipo').value
+	let descricao = document.getElementById('descricao').value
+	let valor = document.getElementById('valor').value
+
+	let despesa = new Despesa(ano, mes, dia, tipo, descricao, valor)
+
+	let despesas = bd.pesquisar(despesa)
+
+
+	carregaListaDespesas(despesas, true)
+
+}//fechamento pesquisarDespesa
